@@ -1,5 +1,6 @@
 const http = require("http");
 const Filter = require("bad-words");
+const axios = require("axios");
 
 const hostname = "127.0.0.1";
 const port = 3000;
@@ -61,3 +62,51 @@ const server = http.createServer((req, res) => {
 server.listen(port, hostname, () => {
   console.log(`Server running http://${hostname}:${port}`);
 });
+
+const url = "http://127.0.0.1:3000/api/prediction";
+
+async function getPrediction() {
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (er) {
+    console.log("Error fetching prediction:", er);
+  }
+}
+
+async function addPrediction(prediction) {
+  try {
+    console.log(prediction);
+    const response = await axios.post(
+      url,
+      { prediction: prediction },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (er) {
+    console.log("Error adding prediction", er);
+  }
+}
+
+async function test() {
+  console.log(await getPrediction());
+  console.log(
+    await addPrediction(
+      "Remember that every misstep is a chance for a new and unexpected move."
+    )
+  );
+  console.log(await getPrediction());
+  console.log(await getPrediction());
+  console.log(await getPrediction());
+  console.log(await getPrediction());
+  console.log(await getPrediction());
+  console.log(await getPrediction());
+  console.log(await getPrediction());
+}
+
+test();
