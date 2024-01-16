@@ -11,6 +11,11 @@ const predictions = [
   "Your creativity will soar to new heights.",
 ];
 
+const filter = new Filter();
+function containsProfanity(str) {
+  return filter.isProfane(str);
+}
+
 const server = http.createServer((req, res) => {
   if (req.method === "GET" && req.url === "/api/prediction") {
     const randomIndex = Math.floor(Math.random() * predictions.length);
@@ -29,11 +34,18 @@ const server = http.createServer((req, res) => {
       const data = JSON.parse(body);
 
       if (data.prediction) {
-        predictions.push(data.prediction);
-        res.writeHead(201, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({ message: "Prediction submitted successfully." })
-        );
+        const isValid = !containsProfanity(data.prediction);
+
+        if (isValid) {
+          predictions.push(data.prediction);
+          res.writeHead(201, { "Content-Type": "application/json" });
+          res.end(
+            JSON.stringify({ message: "Prediction submitted successfully." })
+          );
+        } else {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Prediction contains profanity." }));
+        }
       } else {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(
